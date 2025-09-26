@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Icon from '@/components/ui/icon';
@@ -184,6 +185,54 @@ function Index() {
     dueDate: undefined as Date | undefined
   });
   const [tasks, setTasks] = useState(mockTasks);
+  const [documents, setDocuments] = useState(mockDocuments);
+  const [newDocument, setNewDocument] = useState({
+    title: '',
+    type: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    department: '',
+    assignedTask: '',
+    approvers: [] as string[],
+    riskAnalysis: null as null | { score: number; warnings: string[] }
+  });
+  
+  const approversList = [
+    'Анна Петрова (Менеджер)',
+    'Дмитрий Козлов (Директор)',
+    'Елена Иванова (Юрист)',
+    'Александр Попов (Гл. бухгалтер)'
+  ];
+  
+  const documentTypes = [
+    'Договор',
+    'Справка',
+    'Заявление',
+    'Отчёт',
+    'Протокол',
+    'Техзадание',
+    'Приказ',
+    'Положение'
+  ];
+  
+  const analyzeDocumentRisk = (title: string, type: string) => {
+    const riskWords = ['штраф', 'расторжение', 'неустойка', 'односторонний', 'прекращение', 'ответственность', 'ущерб', 'пеня'];
+    const warnings: string[] = [];
+    let score = 0;
+    
+    const text = (title + ' ' + type).toLowerCase();
+    
+    riskWords.forEach(word => {
+      if (text.includes(word)) {
+        warnings.push(`Обнаружено рисковое слово: "${word}"`);
+        score += 20;
+      }
+    });
+    
+    if (type === 'Договор') score += 30;
+    if (type === 'Приказ') score += 15;
+    
+    return { score: Math.min(score, 100), warnings };
+  };
 
   const taskStats = {
     total: mockTasks.length,
@@ -581,7 +630,406 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && (
+          {activeTab === 'documents' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Управление документами</h2>
+                  <p className="text-gray-600">Маршрутизация, согласование и анализ документов</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="upload" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="upload">Загрузить</TabsTrigger>
+                  <TabsTrigger value="list">Все документы</TabsTrigger>
+                  <TabsTrigger value="routing">Маршрутизация</TabsTrigger>
+                  <TabsTrigger value="analytics">Аналитика</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="upload" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Загрузить новый документ</CardTitle>
+                      <CardDescription>
+                        Выберите файл и настройте маршрут согласования
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* File Upload */}
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
+                        <Icon name="Upload" size={48} className="mx-auto text-gray-400 mb-4" />
+                        <div className="space-y-2">
+                          <p className="text-lg font-medium text-gray-900">Перетащите файл сюда</p>
+                          <p className="text-sm text-gray-600">или нажмите для выбора</p>
+                          <p className="text-xs text-gray-500">PDF, DOC, DOCX до 10 МБ</p>
+                        </div>
+                        <Button className="mt-4" variant="outline">
+                          <Icon name="Upload" size={20} className="mr-2" />
+                          Выбрать файл
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="doc-title">Название документа *</Label>
+                          <Input
+                            id="doc-title"
+                            placeholder="Введите название"
+                            value={newDocument.title}
+                            onChange={(e) => {
+                              const title = e.target.value;
+                              setNewDocument(prev => ({ 
+                                ...prev, 
+                                title,
+                                riskAnalysis: analyzeDocumentRisk(title, prev.type)
+                              }));
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="doc-type">Тип документа *</Label>
+                          <Select value={newDocument.type} onValueChange={(value) => {
+                            setNewDocument(prev => ({ 
+                              ...prev, 
+                              type: value,
+                              riskAnalysis: analyzeDocumentRisk(prev.title, value)
+                            }));
+                          }}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите тип" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {documentTypes.map((type) => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="doc-priority">Приоритет</Label>
+                          <Select value={newDocument.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setNewDocument(prev => ({ ...prev, priority: value }))}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите приоритет" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="low">Низкий</SelectItem>
+                              <SelectItem value="medium">Средний</SelectItem>
+                              <SelectItem value="high">Высокий</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="doc-task">Привязать к задаче</Label>
+                          <Select value={newDocument.assignedTask} onValueChange={(value) => setNewDocument(prev => ({ ...prev, assignedTask: value }))}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Выберите задачу" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">Не привязывать</SelectItem>
+                              {tasks.map((task) => (
+                                <SelectItem key={task.id} value={task.title}>
+                                  {task.title} ({task.assignee})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Risk Analysis */}
+                      {newDocument.riskAnalysis && newDocument.riskAnalysis.score > 0 && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Icon name="AlertTriangle" size={20} className="text-yellow-600" />
+                            <h4 className="font-medium text-yellow-800">Анализ рисков</h4>
+                            <Badge className="bg-yellow-100 text-yellow-800">Риск: {newDocument.riskAnalysis.score}%</Badge>
+                          </div>
+                          <div className="space-y-1">
+                            {newDocument.riskAnalysis.warnings.map((warning, index) => (
+                              <p key={index} className="text-sm text-yellow-700">• {warning}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Approvers */}
+                      <div className="space-y-2">
+                        <Label>Маршрут согласования</Label>
+                        <div className="border rounded-lg p-4 space-y-3">
+                          <p className="text-sm text-gray-600">Выберите согласующих лиц в порядке прохождения:</p>
+                          
+                          <div className="space-y-2">
+                            {approversList.map((approver, index) => (
+                              <div key={index} className="flex items-center space-x-3">
+                                <input 
+                                  type="checkbox" 
+                                  id={`approver-${index}`}
+                                  className="rounded border-gray-300"
+                                  checked={newDocument.approvers.includes(approver)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setNewDocument(prev => ({ ...prev, approvers: [...prev.approvers, approver] }));
+                                    } else {
+                                      setNewDocument(prev => ({ ...prev, approvers: prev.approvers.filter(a => a !== approver) }));
+                                    }
+                                  }}
+                                />
+                                <label htmlFor={`approver-${index}`} className="text-sm">{approver}</label>
+                                {newDocument.approvers.includes(approver) && (
+                                  <Badge variant="outline" className="text-xs">№{newDocument.approvers.indexOf(approver) + 1}</Badge>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {newDocument.approvers.length > 0 && (
+                            <div className="mt-3 p-2 bg-blue-50 rounded border">
+                              <p className="text-xs text-blue-700 font-medium">Порядок согласования:</p>
+                              <div className="text-xs text-blue-600 mt-1">
+                                {newDocument.approvers.map((approver, index) => (
+                                  <span key={index}>
+                                    {index + 1}. {approver}
+                                    {index < newDocument.approvers.length - 1 && ' → '}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-3">
+                        <Button variant="outline" onClick={() => {
+                          setNewDocument({ title: '', type: '', priority: 'medium', department: '', assignedTask: '', approvers: [], riskAnalysis: null });
+                        }}>
+                          Очистить
+                        </Button>
+                        <Button 
+                          className="bg-primary hover:bg-primary/90"
+                          onClick={() => {
+                            if (newDocument.title && newDocument.type) {
+                              const doc: Document = {
+                                id: String(documents.length + 1),
+                                title: newDocument.title,
+                                type: newDocument.type,
+                                status: 'draft',
+                                priority: newDocument.priority,
+                                author: mockUser.name,
+                                department: newDocument.department || mockUser.department,
+                                lastModified: format(new Date(), 'yyyy-MM-dd')
+                              };
+                              setDocuments(prev => [...prev, doc]);
+                              setNewDocument({ title: '', type: '', priority: 'medium', department: '', assignedTask: '', approvers: [], riskAnalysis: null });
+                            }
+                          }}
+                          disabled={!newDocument.title || !newDocument.type}
+                        >
+                          <Icon name="Upload" size={20} className="mr-2" />
+                          Загрузить документ
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="list" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Все документы ({documents.length})</CardTitle>
+                      <CardDescription>
+                        Список всех документов в системе
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {documents.map((doc) => (
+                          <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-4">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <Icon name="FileText" size={20} className="text-blue-600" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h4 className="font-medium">{doc.title}</h4>
+                                  <Badge variant="outline">{doc.type}</Badge>
+                                </div>
+                                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                  <span>Автор: {doc.author}</span>
+                                  <span>Отдел: {doc.department}</span>
+                                  <span>Изменен: {doc.lastModified}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge className={getPriorityColor(doc.priority)}>
+                                {doc.priority === 'high' ? 'Высокий' : 
+                                 doc.priority === 'medium' ? 'Средний' : 'Низкий'}
+                              </Badge>
+                              <Badge className={getStatusColor(doc.status, 'document')}>
+                                {doc.status === 'approved' ? 'Одобрено' :
+                                 doc.status === 'review' ? 'На согласовании' :
+                                 doc.status === 'rejected' ? 'Отклонено' : 'Черновик'}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Icon name="Eye" size={16} />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Icon name="Download" size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="routing" className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Маршруты согласования</CardTitle>
+                        <CardDescription>Настройка автоматических маршрутов</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2">Договоры</h4>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <p>1. Юрист → 2. Гл. бухгалтер → 3. Директор</p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2">Заявления на отпуск</h4>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <p>1. HR-специалист → 2. Менеджер</p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2">Приказы</h4>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <p>1. Директор (только утверждение)</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Уведомления</CardTitle>
+                        <CardDescription>Настройка умных напоминаний</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2 text-red-600">Высокий приоритет</h4>
+                          <div className="text-sm text-gray-600">
+                            <p>Напоминания каждые 2 часа</p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2 text-yellow-600">Средний приоритет</h4>
+                          <div className="text-sm text-gray-600">
+                            <p>Напоминания каждые 8 часов</p>
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 border rounded-lg">
+                          <h4 className="font-medium mb-2 text-green-600">Низкий приоритет</h4>
+                          <div className="text-sm text-gray-600">
+                            <p>Напоминания каждые 24 часа</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="analytics" className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Всего документов</CardTitle>
+                        <Icon name="FileText" className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{documents.length}</div>
+                        <p className="text-xs text-muted-foreground">
+                          +{documents.filter(d => d.lastModified === format(new Date(), 'yyyy-MM-dd')).length} сегодня
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">На согласовании</CardTitle>
+                        <Icon name="Clock" className="h-4 w-4 text-yellow-600" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-yellow-600">{documents.filter(d => d.status === 'review').length}</div>
+                        <p className="text-xs text-muted-foreground">
+                          Требует внимания
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Среднее время</CardTitle>
+                        <Icon name="Timer" className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">2.4 дня</div>
+                        <p className="text-xs text-muted-foreground">
+                          Обработки документа
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Аналитика по типам документов</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {documentTypes.map((type) => {
+                          const count = documents.filter(d => d.type === type).length;
+                          const percentage = documents.length > 0 ? (count / documents.length) * 100 : 0;
+                          return (
+                            <div key={type} className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium">{type}</span>
+                                <span className="text-xs text-gray-500">({count})</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-20 bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className="bg-primary h-2 rounded-full transition-all duration-300" 
+                                    style={{ width: `${percentage}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs text-gray-500 w-10">{percentage.toFixed(0)}%</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
