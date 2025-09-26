@@ -4,6 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import Icon from '@/components/ui/icon';
 
 interface User {
@@ -73,6 +81,26 @@ const mockTasks: Task[] = [
     dueDate: '2024-09-25',
     department: 'Отдел продаж'
   }
+];
+
+const mockEmployees = [
+  { id: '1', name: 'Иван Сидоров', department: 'Отдел разработки', role: 'Разработчик' },
+  { id: '2', name: 'Мария Козлова', department: 'Юридический отдел', role: 'Юрист' },
+  { id: '3', name: 'Петр Васильев', department: 'Отдел продаж', role: 'Менеджер' },
+  { id: '4', name: 'Светлана Николаева', department: 'HR', role: 'HR-специалист' },
+  { id: '5', name: 'Алексей Морозов', department: 'ИТ', role: 'Системный администратор' },
+  { id: '6', name: 'Ольга Белова', department: 'Бухгалтерия', role: 'Бухгалтер' }
+];
+
+const departments = [
+  'Отдел разработки',
+  'Юридический отдел', 
+  'Отдел продаж',
+  'HR',
+  'ИТ',
+  'Бухгалтерия',
+  'Закупки',
+  'Маркетинг'
 ];
 
 const mockDocuments: Document[] = [
@@ -147,6 +175,15 @@ const getPriorityColor = (priority: string) => {
 
 function Index() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    assignee: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    department: '',
+    dueDate: undefined as Date | undefined
+  });
+  const [tasks, setTasks] = useState(mockTasks);
 
   const taskStats = {
     total: mockTasks.length,
@@ -355,7 +392,196 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && (
+          {activeTab === 'tasks' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Управление задачами</h2>
+                  <p className="text-gray-600">Создание и назначение задач сотрудникам</p>
+                </div>
+              </div>
+
+              {/* Create Task Form */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Создать новую задачу</CardTitle>
+                  <CardDescription>
+                    Заполните детали задачи и назначьте исполнителя
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Название задачи *</Label>
+                      <Input
+                        id="title"
+                        placeholder="Введите название задачи"
+                        value={newTask.title}
+                        onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="priority">Приоритет</Label>
+                      <Select value={newTask.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setNewTask(prev => ({ ...prev, priority: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Выберите приоритет" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Низкий</SelectItem>
+                          <SelectItem value="medium">Средний</SelectItem>
+                          <SelectItem value="high">Высокий</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Описание задачи</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Подробное описание задачи, требования и ожидания"
+                      value={newTask.description}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Отдел</Label>
+                      <Select value={newTask.department} onValueChange={(value) => setNewTask(prev => ({ ...prev, department: value, assignee: '' }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Выберите отдел" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="assignee">Исполнитель *</Label>
+                      <Select value={newTask.assignee} onValueChange={(value) => setNewTask(prev => ({ ...prev, assignee: value }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Выберите исполнителя" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mockEmployees
+                            .filter(emp => !newTask.department || emp.department === newTask.department)
+                            .map((employee) => (
+                            <SelectItem key={employee.id} value={employee.name}>
+                              <div className="flex flex-col">
+                                <span>{employee.name}</span>
+                                <span className="text-xs text-gray-500">{employee.role} • {employee.department}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Срок выполнения</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start text-left font-normal">
+                            <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                            {newTask.dueDate ? format(newTask.dueDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={newTask.dueDate}
+                            onSelect={(date) => setNewTask(prev => ({ ...prev, dueDate: date }))}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-3">
+                    <Button variant="outline" onClick={() => setNewTask({ title: '', description: '', assignee: '', priority: 'medium', department: '', dueDate: undefined })}>
+                      Очистить
+                    </Button>
+                    <Button 
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        if (newTask.title && newTask.assignee) {
+                          const task: Task = {
+                            id: String(tasks.length + 1),
+                            title: newTask.title,
+                            description: newTask.description,
+                            assignee: newTask.assignee,
+                            status: 'pending',
+                            priority: newTask.priority,
+                            dueDate: newTask.dueDate ? format(newTask.dueDate, 'yyyy-MM-dd') : '',
+                            department: newTask.department
+                          };
+                          setTasks(prev => [...prev, task]);
+                          setNewTask({ title: '', description: '', assignee: '', priority: 'medium', department: '', dueDate: undefined });
+                        }
+                      }}
+                      disabled={!newTask.title || !newTask.assignee}
+                    >
+                      <Icon name="Plus" size={20} className="mr-2" />
+                      Создать задачу
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Tasks List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Все задачи ({tasks.length})</CardTitle>
+                  <CardDescription>
+                    Список всех задач в системе
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {tasks.map((task) => (
+                      <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h4 className="font-medium">{task.title}</h4>
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority === 'high' ? 'Высокий' : 
+                               task.priority === 'medium' ? 'Средний' : 'Низкий'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500">
+                            <span>Исполнитель: {task.assignee}</span>
+                            {task.dueDate && <span>Срок: {task.dueDate}</span>}
+                            <span>{task.department}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={getStatusColor(task.status, 'task')}>
+                            {task.status === 'in_progress' ? 'В работе' :
+                             task.status === 'completed' ? 'Выполнено' :
+                             task.status === 'overdue' ? 'Просрочено' : 'Ожидает'}
+                          </Badge>
+                          <Button variant="ghost" size="sm">
+                            <Icon name="Edit" size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
