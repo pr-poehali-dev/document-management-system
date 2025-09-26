@@ -186,6 +186,19 @@ function Index() {
   });
   const [tasks, setTasks] = useState(mockTasks);
   const [documents, setDocuments] = useState(mockDocuments);
+  const [applications, setApplications] = useState(mockApplications);
+  const [newApplication, setNewApplication] = useState({
+    type: 'vacation' as 'vacation' | 'business_trip' | 'purchase' | 'other',
+    title: '',
+    description: '',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    amount: '',
+    destination: '',
+    purpose: '',
+    documents: [] as string[]
+  });
   const [newDocument, setNewDocument] = useState({
     title: '',
     type: '',
@@ -1029,7 +1042,584 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && (
+          {activeTab === 'applications' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Управление заявлениями</h2>
+                  <p className="text-gray-600">Подача и обработка заявлений на отпуск, командировки, закупки</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="create" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="create">Создать</TabsTrigger>
+                  <TabsTrigger value="my-applications">Мои заявления</TabsTrigger>
+                  <TabsTrigger value="approval">На согласовании</TabsTrigger>
+                  <TabsTrigger value="all">Все заявления</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="create" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Создать новое заявление</CardTitle>
+                      <CardDescription>
+                        Выберите тип заявления и заполните необходимые данные
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Application Type Selection */}
+                      <div className="space-y-2">
+                        <Label>Тип заявления *</Label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {[
+                            { value: 'vacation', label: 'Отпуск', icon: 'Calendar', color: 'bg-blue-100 text-blue-800' },
+                            { value: 'business_trip', label: 'Командировка', icon: 'Plane', color: 'bg-green-100 text-green-800' },
+                            { value: 'purchase', label: 'Закупка', icon: 'ShoppingCart', color: 'bg-purple-100 text-purple-800' },
+                            { value: 'other', label: 'Другое', icon: 'FileText', color: 'bg-gray-100 text-gray-800' }
+                          ].map((type) => (
+                            <button
+                              key={type.value}
+                              onClick={() => setNewApplication(prev => ({ ...prev, type: type.value as any, title: '' }))}
+                              className={`p-4 border-2 rounded-lg transition-all text-center ${
+                                newApplication.type === type.value 
+                                  ? 'border-primary bg-primary/5' 
+                                  : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <Icon name={type.icon as any} size={32} className="mx-auto mb-2 text-gray-600" />
+                              <p className="font-medium text-sm">{type.label}</p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dynamic Form Based on Type */}
+                      {newApplication.type && (
+                        <div className="space-y-6">
+                          {/* Common Fields */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="app-title">Название заявления *</Label>
+                              <Input
+                                id="app-title"
+                                placeholder={
+                                  newApplication.type === 'vacation' ? 'Заявление на отпуск' :
+                                  newApplication.type === 'business_trip' ? 'Командировка в...' :
+                                  newApplication.type === 'purchase' ? 'Закупка оборудования' : 'Опишите заявление'
+                                }
+                                value={newApplication.title}
+                                onChange={(e) => setNewApplication(prev => ({ ...prev, title: e.target.value }))}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="app-priority">Приоритет</Label>
+                              <Select value={newApplication.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setNewApplication(prev => ({ ...prev, priority: value }))}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Выберите приоритет" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="low">Низкий</SelectItem>
+                                  <SelectItem value="medium">Средний</SelectItem>
+                                  <SelectItem value="high">Высокий</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          {/* Vacation Specific Fields */}
+                          {newApplication.type === 'vacation' && (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label>Начало отпуска *</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                                        {newApplication.startDate ? format(newApplication.startDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={newApplication.startDate}
+                                        onSelect={(date) => setNewApplication(prev => ({ ...prev, startDate: date }))}
+                                        disabled={(date) => date < new Date()}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label>Окончание отпуска *</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                                        {newApplication.endDate ? format(newApplication.endDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={newApplication.endDate}
+                                        onSelect={(date) => setNewApplication(prev => ({ ...prev, endDate: date }))}
+                                        disabled={(date) => date < (newApplication.startDate || new Date())}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              </div>
+                              
+                              {newApplication.startDate && newApplication.endDate && (
+                                <div className="p-3 bg-blue-50 rounded-lg">
+                                  <p className="text-sm text-blue-700">
+                                    Продолжительность: {Math.ceil((newApplication.endDate.getTime() - newApplication.startDate.getTime()) / (1000 * 60 * 60 * 24))} дней
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Business Trip Specific Fields */}
+                          {newApplication.type === 'business_trip' && (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label>Направление *</Label>
+                                  <Input
+                                    placeholder="Город, страна"
+                                    value={newApplication.destination}
+                                    onChange={(e) => setNewApplication(prev => ({ ...prev, destination: e.target.value }))}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label>Предполагаемая сумма</Label>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={newApplication.amount}
+                                    onChange={(e) => setNewApplication(prev => ({ ...prev, amount: e.target.value }))}
+                                  />
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label>Дата отъезда *</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                                        {newApplication.startDate ? format(newApplication.startDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={newApplication.startDate}
+                                        onSelect={(date) => setNewApplication(prev => ({ ...prev, startDate: date }))}
+                                        disabled={(date) => date < new Date()}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label>Дата возвращения *</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                                        {newApplication.endDate ? format(newApplication.endDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={newApplication.endDate}
+                                        onSelect={(date) => setNewApplication(prev => ({ ...prev, endDate: date }))}
+                                        disabled={(date) => date < (newApplication.startDate || new Date())}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Цель командировки *</Label>
+                                <Textarea
+                                  placeholder="Опишите цель и задачи командировки"
+                                  value={newApplication.purpose}
+                                  onChange={(e) => setNewApplication(prev => ({ ...prev, purpose: e.target.value }))}
+                                  rows={3}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Purchase Specific Fields */}
+                          {newApplication.type === 'purchase' && (
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label>Сумма закупки *</Label>
+                                  <Input
+                                    type="number"
+                                    placeholder="0"
+                                    value={newApplication.amount}
+                                    onChange={(e) => setNewApplication(prev => ({ ...prev, amount: e.target.value }))}
+                                  />
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <Label>Необходимая дата поставки</Label>
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                                        <Icon name="Calendar" className="mr-2 h-4 w-4" />
+                                        {newApplication.endDate ? format(newApplication.endDate, 'dd.MM.yyyy', { locale: ru }) : 'Выберите дату'}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={newApplication.endDate}
+                                        onSelect={(date) => setNewApplication(prev => ({ ...prev, endDate: date }))}
+                                        disabled={(date) => date < new Date()}
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label>Обоснование закупки *</Label>
+                                <Textarea
+                                  placeholder="Опишите, что необходимо приобрести и почему"
+                                  value={newApplication.purpose}
+                                  onChange={(e) => setNewApplication(prev => ({ ...prev, purpose: e.target.value }))}
+                                  rows={3}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Other Type Fields */}
+                          {newApplication.type === 'other' && (
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label>Описание заявления *</Label>
+                                <Textarea
+                                  placeholder="Подробно опишите суть заявления"
+                                  value={newApplication.description}
+                                  onChange={(e) => setNewApplication(prev => ({ ...prev, description: e.target.value }))}
+                                  rows={4}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Auto-routing Info */}
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h4 className="font-medium mb-2 flex items-center">
+                              <Icon name="Route" size={16} className="mr-2" />
+                              Маршрут согласования
+                            </h4>
+                            <p className="text-sm text-gray-600">
+                              {newApplication.type === 'vacation' && 'Автоматически направлено HR-специалисту, затем начальнику отдела'}
+                              {newApplication.type === 'business_trip' && 'Автоматически направлено начальнику отдела, затем финансовому директору'}
+                              {newApplication.type === 'purchase' && (
+                                newApplication.amount && parseInt(newApplication.amount) > 50000 
+                                  ? 'Автоматически направлено отделу закупок, затем директору (сумма > 50,000₽)'
+                                  : 'Автоматически направлено отделу закупок'
+                              )}
+                              {newApplication.type === 'other' && 'Автоматически направлено начальнику отдела'}
+                            </p>
+                          </div>
+
+                          <div className="flex justify-end space-x-3">
+                            <Button variant="outline" onClick={() => {
+                              setNewApplication({
+                                type: 'vacation',
+                                title: '',
+                                description: '',
+                                priority: 'medium',
+                                startDate: undefined,
+                                endDate: undefined,
+                                amount: '',
+                                destination: '',
+                                purpose: '',
+                                documents: []
+                              });
+                            }}>
+                              Очистить
+                            </Button>
+                            <Button variant="outline">
+                              <Icon name="Save" size={16} className="mr-2" />
+                              Сохранить черновик
+                            </Button>
+                            <Button 
+                              className="bg-primary hover:bg-primary/90"
+                              onClick={() => {
+                                if (newApplication.title) {
+                                  const app: Application = {
+                                    id: String(applications.length + 1),
+                                    type: newApplication.type,
+                                    title: newApplication.title,
+                                    applicant: mockUser.name,
+                                    status: 'submitted',
+                                    priority: newApplication.priority,
+                                    submittedDate: format(new Date(), 'yyyy-MM-dd'),
+                                    amount: newApplication.amount ? parseInt(newApplication.amount) : undefined,
+                                    period: newApplication.startDate && newApplication.endDate 
+                                      ? `${format(newApplication.startDate, 'dd.MM.yyyy')} - ${format(newApplication.endDate, 'dd.MM.yyyy')}` 
+                                      : undefined
+                                  };
+                                  setApplications(prev => [...prev, app]);
+                                  setNewApplication({
+                                    type: 'vacation',
+                                    title: '',
+                                    description: '',
+                                    priority: 'medium',
+                                    startDate: undefined,
+                                    endDate: undefined,
+                                    amount: '',
+                                    destination: '',
+                                    purpose: '',
+                                    documents: []
+                                  });
+                                }
+                              }}
+                              disabled={!newApplication.title}
+                            >
+                              <Icon name="Send" size={16} className="mr-2" />
+                              Подать заявление
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="my-applications" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Мои заявления</CardTitle>
+                      <CardDescription>
+                        Список всех моих заявлений
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {applications
+                          .filter(app => app.applicant === mockUser.name)
+                          .map((app) => (
+                          <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-4">
+                              <div className="p-3 bg-blue-100 rounded-lg">
+                                <Icon name={
+                                  app.type === 'vacation' ? 'Calendar' :
+                                  app.type === 'business_trip' ? 'Plane' :
+                                  app.type === 'purchase' ? 'ShoppingCart' : 'FileText'
+                                } size={20} className="text-blue-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium">{app.title}</h4>
+                                <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                  <span>Подано: {app.submittedDate}</span>
+                                  {app.amount && <span>Сумма: {app.amount.toLocaleString()} ₽</span>}
+                                  {app.period && <span>Период: {app.period}</span>}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge className={getPriorityColor(app.priority)}>
+                                {app.priority === 'high' ? 'Высокий' : 
+                                 app.priority === 'medium' ? 'Средний' : 'Низкий'}
+                              </Badge>
+                              <Badge className={getStatusColor(app.status, 'application')}>
+                                {app.status === 'approved' ? 'Одобрено' :
+                                 app.status === 'submitted' ? 'На рассмотрении' :
+                                 app.status === 'rejected' ? 'Отклонено' : 'Черновик'}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Icon name="Eye" size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="approval" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Заявления на согласовании</CardTitle>
+                      <CardDescription>
+                        Заявления, ожидающие вашего решения
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {applications
+                          .filter(app => app.status === 'submitted')
+                          .map((app) => (
+                          <div key={app.id} className="border rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center space-x-4 flex-1">
+                                <div className="p-3 bg-yellow-100 rounded-lg">
+                                  <Icon name={
+                                    app.type === 'vacation' ? 'Calendar' :
+                                    app.type === 'business_trip' ? 'Plane' :
+                                    app.type === 'purchase' ? 'ShoppingCart' : 'FileText'
+                                  } size={20} className="text-yellow-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-lg">{app.title}</h4>
+                                  <p className="text-gray-600">Заявитель: {app.applicant}</p>
+                                  <div className="flex items-center space-x-4 text-sm text-gray-500 mt-2">
+                                    <span>Подано: {app.submittedDate}</span>
+                                    {app.amount && <span>Сумма: {app.amount.toLocaleString()} ₽</span>}
+                                    {app.period && <span>Период: {app.period}</span>}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-3">
+                                <Badge className={getPriorityColor(app.priority)}>
+                                  {app.priority === 'high' ? 'Высокий' : 
+                                   app.priority === 'medium' ? 'Средний' : 'Низкий'}
+                                </Badge>
+                                <Button size="sm" variant="outline">
+                                  <Icon name="Eye" size={14} className="mr-2" />
+                                  Просмотр
+                                </Button>
+                                <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                                  <Icon name="X" size={14} className="mr-2" />
+                                  Отклонить
+                                </Button>
+                                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                                  <Icon name="Check" size={14} className="mr-2" />
+                                  Одобрить
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {applications.filter(app => app.status === 'submitted').length === 0 && (
+                          <div className="text-center py-8">
+                            <Icon name="CheckCircle" size={48} className="mx-auto text-gray-400 mb-4" />
+                            <p className="text-gray-500">Нет заявлений на согласовании</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="all" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-600">{applications.length}</div>
+                        <div className="text-sm text-gray-600">Всего заявлений</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-yellow-600">{applications.filter(a => a.status === 'submitted').length}</div>
+                        <div className="text-sm text-gray-600">На рассмотрении</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-green-600">{applications.filter(a => a.status === 'approved').length}</div>
+                        <div className="text-sm text-gray-600">Одобрено</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-red-600">{applications.filter(a => a.status === 'rejected').length}</div>
+                        <div className="text-sm text-gray-600">Отклонено</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Все заявления</CardTitle>
+                      <CardDescription>
+                        Полный список заявлений в системе
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {applications.map((app) => (
+                          <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center space-x-4">
+                              <div className="p-3 bg-purple-100 rounded-lg">
+                                <Icon name={
+                                  app.type === 'vacation' ? 'Calendar' :
+                                  app.type === 'business_trip' ? 'Plane' :
+                                  app.type === 'purchase' ? 'ShoppingCart' : 'FileText'
+                                } size={20} className="text-purple-600" />
+                              </div>
+                              <div>
+                                <h4 className="font-medium">{app.title}</h4>
+                                <p className="text-sm text-gray-600">Заявитель: {app.applicant}</p>
+                                <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                  <span>Подано: {app.submittedDate}</span>
+                                  {app.amount && <span>Сумма: {app.amount.toLocaleString()} ₽</span>}
+                                  {app.period && <span>Период: {app.period}</span>}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline">
+                                {app.type === 'vacation' ? 'Отпуск' :
+                                 app.type === 'business_trip' ? 'Командировка' :
+                                 app.type === 'purchase' ? 'Закупка' : 'Другое'}
+                              </Badge>
+                              <Badge className={getPriorityColor(app.priority)}>
+                                {app.priority === 'high' ? 'Высокий' : 
+                                 app.priority === 'medium' ? 'Средний' : 'Низкий'}
+                              </Badge>
+                              <Badge className={getStatusColor(app.status, 'application')}>
+                                {app.status === 'approved' ? 'Одобрено' :
+                                 app.status === 'submitted' ? 'На рассмотрении' :
+                                 app.status === 'rejected' ? 'Отклонено' : 'Черновик'}
+                              </Badge>
+                              <Button variant="ghost" size="sm">
+                                <Icon name="Eye" size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
