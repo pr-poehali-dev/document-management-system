@@ -137,6 +137,52 @@ const mockDocuments: Document[] = [
   }
 ];
 
+interface Application {
+  id: string;
+  type: 'vacation' | 'business_trip' | 'purchase' | 'other';
+  title: string;
+  applicant: string;
+  status: 'draft' | 'submitted' | 'approved' | 'rejected';
+  priority: 'low' | 'medium' | 'high';
+  submittedDate: string;
+  amount?: number;
+  period?: string;
+}
+
+const mockApplications: Application[] = [
+  {
+    id: '1',
+    type: 'vacation',
+    title: 'Заявление на отпуск',
+    applicant: 'Анна Петрова',
+    status: 'approved',
+    priority: 'medium',
+    submittedDate: '2024-09-20',
+    period: '01.10.2024 - 14.10.2024'
+  },
+  {
+    id: '2',
+    type: 'business_trip',
+    title: 'Командировка в Санкт-Петербург',
+    applicant: 'Иван Сидоров',
+    status: 'submitted',
+    priority: 'high',
+    submittedDate: '2024-09-25',
+    amount: 45000,
+    period: '05.10.2024 - 08.10.2024'
+  },
+  {
+    id: '3',
+    type: 'purchase',
+    title: 'Закупка серверного оборудования',
+    applicant: 'Алексей Морозов',
+    status: 'submitted',
+    priority: 'high',
+    submittedDate: '2024-09-26',
+    amount: 250000
+  }
+];
+
 const navigationItems = [
   { id: 'dashboard', label: 'Дашборд', icon: 'BarChart3' },
   { id: 'tasks', label: 'Задачи', icon: 'CheckSquare' },
@@ -148,12 +194,19 @@ const navigationItems = [
   { id: 'profile', label: 'Профиль', icon: 'User' }
 ];
 
-const getStatusColor = (status: string, type: 'task' | 'document') => {
+const getStatusColor = (status: string, type: 'task' | 'document' | 'application') => {
   if (type === 'task') {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'in_progress': return 'bg-blue-100 text-blue-800';
       case 'overdue': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  } else if (type === 'application') {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'submitted': return 'bg-yellow-100 text-yellow-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   } else {
