@@ -2162,7 +2162,403 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && activeTab !== 'departments' && (
+          {activeTab === 'employees' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Управление сотрудниками</h2>
+                  <p className="text-gray-600">Профили, задачи и статистика производительности сотрудников</p>
+                </div>
+                {mockUser.role === 'manager' && (
+                  <Button className="bg-primary hover:bg-primary/90">
+                    <Icon name="UserPlus" size={20} className="mr-2" />
+                    Добавить сотрудника
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Всего сотрудников</CardTitle>
+                    <Icon name="Users" className="h-4 w-4 text-blue-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{mockEmployees.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      в {departments.length} отделах
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Активные сотрудники</CardTitle>
+                    <Icon name="UserCheck" className="h-4 w-4 text-green-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">
+                      {mockEmployees.filter(e => tasks.some(t => t.assignee === e.name && t.status === 'in_progress')).length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      работают над задачами
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Средняя нагрузка</CardTitle>
+                    <Icon name="BarChart3" className="h-4 w-4 text-purple-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {Math.round(tasks.length / mockEmployees.length * 10) / 10}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      задач на человека
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Общая эффективность</CardTitle>
+                    <Icon name="TrendingUp" className="h-4 w-4 text-orange-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-orange-600">
+                      {Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100)}%
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      выполненных задач
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Tabs defaultValue="grid" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="grid">Карточки</TabsTrigger>
+                  <TabsTrigger value="table">Таблица</TabsTrigger>
+                  <TabsTrigger value="performance">Производительность</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="grid" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {mockEmployees.map((employee) => {
+                      const empTasks = tasks.filter(t => t.assignee === employee.name);
+                      const completedTasks = empTasks.filter(t => t.status === 'completed').length;
+                      const inProgressTasks = empTasks.filter(t => t.status === 'in_progress').length;
+                      const overdueTasks = empTasks.filter(t => t.status === 'overdue').length;
+                      const efficiency = empTasks.length > 0 ? Math.round((completedTasks / empTasks.length) * 100) : 0;
+
+                      return (
+                        <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center space-x-3">
+                                <Avatar className="h-12 w-12">
+                                  <AvatarFallback className="text-lg bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700 font-medium">
+                                    {employee.name.split(' ').map(n => n[0]).join('')}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <CardTitle className="text-base">{employee.name}</CardTitle>
+                                  <CardDescription className="text-sm">{employee.role}</CardDescription>
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    {employee.department}
+                                  </Badge>
+                                </div>
+                              </div>
+                              {mockUser.role === 'manager' && (
+                                <Button variant="ghost" size="sm">
+                                  <Icon name="MoreVertical" size={16} />
+                                </Button>
+                              )}
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-3 bg-green-50 rounded-lg text-center">
+                                <div className="text-xl font-bold text-green-600">{completedTasks}</div>
+                                <div className="text-xs text-gray-600">Выполнено</div>
+                              </div>
+                              <div className="p-3 bg-blue-50 rounded-lg text-center">
+                                <div className="text-xl font-bold text-blue-600">{inProgressTasks}</div>
+                                <div className="text-xs text-gray-600">В работе</div>
+                              </div>
+                            </div>
+
+                            {overdueTasks > 0 && (
+                              <div className="p-2 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2">
+                                <Icon name="AlertTriangle" size={16} className="text-red-600" />
+                                <span className="text-sm text-red-700">{overdueTasks} просроченных</span>
+                              </div>
+                            )}
+
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-gray-700">Эффективность</span>
+                                <span className="text-sm font-bold text-blue-600">{efficiency}%</span>
+                              </div>
+                              <Progress value={efficiency} className="h-2" />
+                            </div>
+
+                            <div className="pt-3 border-t space-y-2">
+                              <h4 className="text-sm font-medium text-gray-700">Текущие задачи:</h4>
+                              {empTasks.length > 0 ? (
+                                <div className="space-y-1">
+                                  {empTasks.slice(0, 2).map((task) => (
+                                    <div key={task.id} className="text-xs p-2 bg-gray-50 rounded flex items-center justify-between">
+                                      <span className="truncate flex-1">{task.title}</span>
+                                      <Badge className={`${getStatusColor(task.status, 'task')} ml-2 text-xs`}>
+                                        {task.status === 'completed' ? '✓' : 
+                                         task.status === 'in_progress' ? '⋯' : 
+                                         task.status === 'overdue' ? '!' : '○'}
+                                      </Badge>
+                                    </div>
+                                  ))}
+                                  {empTasks.length > 2 && (
+                                    <p className="text-xs text-gray-500 text-center">+{empTasks.length - 2} еще</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-gray-500 italic">Нет активных задач</p>
+                              )}
+                            </div>
+
+                            <Button variant="outline" className="w-full" size="sm">
+                              <Icon name="Eye" size={14} className="mr-2" />
+                              Посмотреть профиль
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="table" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Список сотрудников</CardTitle>
+                      <CardDescription>Полная информация о всех сотрудниках компании</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left p-3 font-medium text-gray-700">Сотрудник</th>
+                              <th className="text-left p-3 font-medium text-gray-700">Должность</th>
+                              <th className="text-left p-3 font-medium text-gray-700">Отдел</th>
+                              <th className="text-center p-3 font-medium text-gray-700">Всего задач</th>
+                              <th className="text-center p-3 font-medium text-gray-700">Выполнено</th>
+                              <th className="text-center p-3 font-medium text-gray-700">В работе</th>
+                              <th className="text-center p-3 font-medium text-gray-700">Просрочено</th>
+                              <th className="text-center p-3 font-medium text-gray-700">КПД</th>
+                              <th className="text-center p-3 font-medium text-gray-700">Действия</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {mockEmployees.map((employee) => {
+                              const empTasks = tasks.filter(t => t.assignee === employee.name);
+                              const completedTasks = empTasks.filter(t => t.status === 'completed').length;
+                              const inProgressTasks = empTasks.filter(t => t.status === 'in_progress').length;
+                              const overdueTasks = empTasks.filter(t => t.status === 'overdue').length;
+                              const efficiency = empTasks.length > 0 ? Math.round((completedTasks / empTasks.length) * 100) : 0;
+
+                              return (
+                                <tr key={employee.id} className="border-b hover:bg-gray-50 transition-colors">
+                                  <td className="p-3">
+                                    <div className="flex items-center space-x-3">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                                          {employee.name.split(' ').map(n => n[0]).join('')}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="font-medium">{employee.name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="p-3 text-sm text-gray-600">{employee.role}</td>
+                                  <td className="p-3">
+                                    <Badge variant="outline" className="text-xs">{employee.department}</Badge>
+                                  </td>
+                                  <td className="p-3 text-center font-medium">{empTasks.length}</td>
+                                  <td className="p-3 text-center">
+                                    <span className="text-green-600 font-medium">{completedTasks}</span>
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    <span className="text-blue-600 font-medium">{inProgressTasks}</span>
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    {overdueTasks > 0 ? (
+                                      <span className="text-red-600 font-medium">{overdueTasks}</span>
+                                    ) : (
+                                      <span className="text-gray-400">0</span>
+                                    )}
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    <div className="flex items-center justify-center space-x-2">
+                                      <span className={`font-bold ${
+                                        efficiency >= 80 ? 'text-green-600' :
+                                        efficiency >= 50 ? 'text-yellow-600' : 'text-red-600'
+                                      }`}>
+                                        {efficiency}%
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="p-3">
+                                    <div className="flex items-center justify-center space-x-1">
+                                      <Button variant="ghost" size="sm">
+                                        <Icon name="Eye" size={14} />
+                                      </Button>
+                                      {mockUser.role === 'manager' && (
+                                        <Button variant="ghost" size="sm">
+                                          <Icon name="Edit" size={14} />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="performance" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Рейтинг производительности</CardTitle>
+                      <CardDescription>Сотрудники отсортированы по эффективности выполнения задач</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {mockEmployees
+                          .map((employee) => {
+                            const empTasks = tasks.filter(t => t.assignee === employee.name);
+                            const completedTasks = empTasks.filter(t => t.status === 'completed').length;
+                            const efficiency = empTasks.length > 0 ? Math.round((completedTasks / empTasks.length) * 100) : 0;
+                            return { ...employee, empTasks, completedTasks, efficiency };
+                          })
+                          .sort((a, b) => b.efficiency - a.efficiency)
+                          .map((employee, index) => (
+                            <div key={employee.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                              <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
+                                index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                                index === 1 ? 'bg-gray-100 text-gray-700' :
+                                index === 2 ? 'bg-orange-100 text-orange-700' :
+                                'bg-blue-50 text-blue-600'
+                              }`}>
+                                {index + 1}
+                              </div>
+                              
+                              <Avatar className="h-12 w-12">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700">
+                                  {employee.name.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+
+                              <div className="flex-1">
+                                <h4 className="font-medium">{employee.name}</h4>
+                                <div className="flex items-center space-x-3 text-sm text-gray-600">
+                                  <span>{employee.role}</span>
+                                  <span>•</span>
+                                  <span>{employee.department}</span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="flex items-center space-x-4">
+                                  <div className="text-center">
+                                    <div className="text-sm font-medium text-gray-600">Задач</div>
+                                    <div className="text-lg font-bold">{employee.empTasks.length}</div>
+                                  </div>
+                                  <div className="text-center">
+                                    <div className="text-sm font-medium text-gray-600">Выполнено</div>
+                                    <div className="text-lg font-bold text-green-600">{employee.completedTasks}</div>
+                                  </div>
+                                  <div className="text-center min-w-[80px]">
+                                    <div className="text-sm font-medium text-gray-600">КПД</div>
+                                    <div className={`text-2xl font-bold ${
+                                      employee.efficiency >= 80 ? 'text-green-600' :
+                                      employee.efficiency >= 50 ? 'text-yellow-600' : 'text-red-600'
+                                    }`}>
+                                      {employee.efficiency}%
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Icon name="Award" size={24} className="text-green-600 mr-2" />
+                        Лучшие показатели
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {(() => {
+                        const employeesWithStats = mockEmployees.map((employee) => {
+                          const empTasks = tasks.filter(t => t.assignee === employee.name);
+                          const completedTasks = empTasks.filter(t => t.status === 'completed').length;
+                          const efficiency = empTasks.length > 0 ? Math.round((completedTasks / empTasks.length) * 100) : 0;
+                          return { ...employee, empTasks, completedTasks, efficiency };
+                        });
+
+                        const topEfficiency = employeesWithStats.sort((a, b) => b.efficiency - a.efficiency)[0];
+                        const topCompleted = employeesWithStats.sort((a, b) => b.completedTasks - a.completedTasks)[0];
+                        const topTotal = employeesWithStats.sort((a, b) => b.empTasks.length - a.empTasks.length)[0];
+
+                        return (
+                          <>
+                            <div className="p-4 bg-white rounded-lg border-2 border-green-300">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Icon name="TrendingUp" size={20} className="text-green-600" />
+                                <h4 className="font-medium">Лучший КПД</h4>
+                              </div>
+                              <p className="text-lg font-bold">{topEfficiency.name}</p>
+                              <p className="text-2xl font-bold text-green-600">{topEfficiency.efficiency}%</p>
+                            </div>
+
+                            <div className="p-4 bg-white rounded-lg border-2 border-blue-300">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Icon name="CheckCircle2" size={20} className="text-blue-600" />
+                                <h4 className="font-medium">Больше выполнил</h4>
+                              </div>
+                              <p className="text-lg font-bold">{topCompleted.name}</p>
+                              <p className="text-2xl font-bold text-blue-600">{topCompleted.completedTasks} задач</p>
+                            </div>
+
+                            <div className="p-4 bg-white rounded-lg border-2 border-purple-300">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Icon name="Zap" size={20} className="text-purple-600" />
+                                <h4 className="font-medium">Самый загруженный</h4>
+                              </div>
+                              <p className="text-lg font-bold">{topTotal.name}</p>
+                              <p className="text-2xl font-bold text-purple-600">{topTotal.empTasks.length} задач</p>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && activeTab !== 'departments' && activeTab !== 'employees' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
