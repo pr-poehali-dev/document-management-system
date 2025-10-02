@@ -2558,7 +2558,406 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && activeTab !== 'departments' && activeTab !== 'employees' && (
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Мой профиль</h2>
+                  <p className="text-gray-600">Управление персональными данными и настройками аккаунта</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1 space-y-6">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col items-center text-center space-y-4">
+                        <Avatar className="h-32 w-32">
+                          <AvatarFallback className="text-4xl bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700 font-bold">
+                            {mockUser.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="space-y-2">
+                          <h3 className="text-2xl font-bold">{mockUser.name}</h3>
+                          <Badge className="bg-blue-100 text-blue-800">
+                            {mockUser.role === 'manager' ? 'Руководитель' : 'Сотрудник'}
+                          </Badge>
+                          <p className="text-sm text-gray-600">{mockUser.department}</p>
+                        </div>
+
+                        <Button variant="outline" className="w-full">
+                          <Icon name="Upload" size={16} className="mr-2" />
+                          Изменить фото
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Быстрая статистика</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="CheckCircle2" size={20} className="text-green-600" />
+                          <span className="text-sm font-medium">Выполнено задач</span>
+                        </div>
+                        <span className="text-lg font-bold text-green-600">
+                          {tasks.filter(t => t.assignee === mockUser.name && t.status === 'completed').length}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="Clock" size={20} className="text-blue-600" />
+                          <span className="text-sm font-medium">В работе</span>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600">
+                          {tasks.filter(t => t.assignee === mockUser.name && t.status === 'in_progress').length}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="FileText" size={20} className="text-purple-600" />
+                          <span className="text-sm font-medium">Документов</span>
+                        </div>
+                        <span className="text-lg font-bold text-purple-600">
+                          {documents.filter(d => d.author === mockUser.name).length}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="TrendingUp" size={20} className="text-orange-600" />
+                          <span className="text-sm font-medium">Эффективность</span>
+                        </div>
+                        <span className="text-lg font-bold text-orange-600">
+                          {tasks.filter(t => t.assignee === mockUser.name).length > 0 
+                            ? Math.round((tasks.filter(t => t.assignee === mockUser.name && t.status === 'completed').length / 
+                                tasks.filter(t => t.assignee === mockUser.name).length) * 100)
+                            : 0}%
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="lg:col-span-2 space-y-6">
+                  <Tabs defaultValue="personal" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4">
+                      <TabsTrigger value="personal">Личные данные</TabsTrigger>
+                      <TabsTrigger value="security">Безопасность</TabsTrigger>
+                      <TabsTrigger value="notifications">Уведомления</TabsTrigger>
+                      <TabsTrigger value="activity">Активность</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="personal" className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Персональная информация</CardTitle>
+                          <CardDescription>Обновите свои личные данные</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Имя</Label>
+                              <Input defaultValue={mockUser.name.split(' ')[1]} />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Фамилия</Label>
+                              <Input defaultValue={mockUser.name.split(' ')[0]} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Email</Label>
+                            <Input type="email" defaultValue="anna.petrova@company.com" />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Телефон</Label>
+                            <Input type="tel" defaultValue="+7 (999) 123-45-67" />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Должность</Label>
+                            <Input defaultValue={mockUser.role === 'manager' ? 'Руководитель' : 'Сотрудник'} />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Отдел</Label>
+                            <Select defaultValue={mockUser.department}>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {departments.map((dept) => (
+                                  <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>О себе</Label>
+                            <Textarea 
+                              placeholder="Расскажите немного о себе..." 
+                              rows={4}
+                              defaultValue="Опытный руководитель с 10+ лет работы в сфере управления проектами."
+                            />
+                          </div>
+
+                          <div className="flex justify-end space-x-3">
+                            <Button variant="outline">Отменить</Button>
+                            <Button className="bg-primary hover:bg-primary/90">
+                              <Icon name="Save" size={16} className="mr-2" />
+                              Сохранить изменения
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="security" className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Безопасность аккаунта</CardTitle>
+                          <CardDescription>Управление паролем и настройками безопасности</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Текущий пароль</Label>
+                              <Input type="password" placeholder="Введите текущий пароль" />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Новый пароль</Label>
+                              <Input type="password" placeholder="Введите новый пароль" />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Подтвердите новый пароль</Label>
+                              <Input type="password" placeholder="Повторите новый пароль" />
+                            </div>
+
+                            <Button className="bg-primary hover:bg-primary/90">
+                              <Icon name="Key" size={16} className="mr-2" />
+                              Изменить пароль
+                            </Button>
+                          </div>
+
+                          <div className="pt-6 border-t space-y-4">
+                            <h4 className="font-medium">Двухфакторная аутентификация</h4>
+                            <div className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <Icon name="Shield" size={24} className="text-green-600" />
+                                <div>
+                                  <p className="font-medium">Защита аккаунта</p>
+                                  <p className="text-sm text-gray-600">Дополнительный уровень безопасности</p>
+                                </div>
+                              </div>
+                              <Button variant="outline">Включить</Button>
+                            </div>
+                          </div>
+
+                          <div className="pt-6 border-t space-y-4">
+                            <h4 className="font-medium">Активные сессии</h4>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50">
+                                <div className="flex items-center space-x-3">
+                                  <Icon name="Monitor" size={24} className="text-green-600" />
+                                  <div>
+                                    <p className="font-medium">Windows • Chrome</p>
+                                    <p className="text-sm text-gray-600">Москва, Россия • Текущая сессия</p>
+                                  </div>
+                                </div>
+                                <Badge className="bg-green-100 text-green-800">Активна</Badge>
+                              </div>
+
+                              <div className="flex items-center justify-between p-4 border rounded-lg">
+                                <div className="flex items-center space-x-3">
+                                  <Icon name="Smartphone" size={24} className="text-gray-600" />
+                                  <div>
+                                    <p className="font-medium">iPhone • Safari</p>
+                                    <p className="text-sm text-gray-600">2 часа назад</p>
+                                  </div>
+                                </div>
+                                <Button variant="outline" size="sm">Завершить</Button>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="notifications" className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Настройки уведомлений</CardTitle>
+                          <CardDescription>Управление способами и частотой получения уведомлений</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div className="space-y-4">
+                            <h4 className="font-medium">Email уведомления</h4>
+                            
+                            <div className="space-y-3">
+                              {[
+                                { title: 'Новые задачи', desc: 'Когда вам назначена новая задача' },
+                                { title: 'Изменение статуса', desc: 'Изменения в ваших задачах' },
+                                { title: 'Комментарии', desc: 'Новые комментарии к вашим задачам' },
+                                { title: 'Упоминания', desc: 'Когда вас упоминают в комментариях' },
+                                { title: 'Документы', desc: 'Новые документы для согласования' }
+                              ].map((item, index) => (
+                                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                                  <div>
+                                    <p className="font-medium">{item.title}</p>
+                                    <p className="text-sm text-gray-600">{item.desc}</p>
+                                  </div>
+                                  <input type="checkbox" defaultChecked className="rounded" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="pt-6 border-t space-y-4">
+                            <h4 className="font-medium">Push уведомления</h4>
+                            
+                            <div className="space-y-3">
+                              {[
+                                { title: 'Срочные задачи', desc: 'Задачи с высоким приоритетом' },
+                                { title: 'Приближающиеся дедлайны', desc: 'За 24 часа до истечения срока' },
+                                { title: 'Одобрение документов', desc: 'Когда требуется ваше согласование' }
+                              ].map((item, index) => (
+                                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                                  <div>
+                                    <p className="font-medium">{item.title}</p>
+                                    <p className="text-sm text-gray-600">{item.desc}</p>
+                                  </div>
+                                  <input type="checkbox" defaultChecked className="rounded" />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-end">
+                            <Button className="bg-primary hover:bg-primary/90">
+                              <Icon name="Save" size={16} className="mr-2" />
+                              Сохранить настройки
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="activity" className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>История активности</CardTitle>
+                          <CardDescription>Ваши последние действия в системе</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            {[
+                              { 
+                                icon: 'CheckCircle2', 
+                                color: 'text-green-600', 
+                                bg: 'bg-green-50',
+                                action: 'Завершена задача', 
+                                detail: 'Подготовка отчета по проекту',
+                                time: '2 часа назад'
+                              },
+                              { 
+                                icon: 'FileText', 
+                                color: 'text-blue-600',
+                                bg: 'bg-blue-50',
+                                action: 'Создан документ', 
+                                detail: 'Техническое задание проект "Альфа"',
+                                time: '5 часов назад'
+                              },
+                              { 
+                                icon: 'MessageSquare', 
+                                color: 'text-purple-600',
+                                bg: 'bg-purple-50',
+                                action: 'Добавлен комментарий', 
+                                detail: 'К задаче "Обновление базы данных"',
+                                time: 'Вчера в 16:30'
+                              },
+                              { 
+                                icon: 'UserPlus', 
+                                color: 'text-orange-600',
+                                bg: 'bg-orange-50',
+                                action: 'Назначен исполнитель', 
+                                detail: 'Иван Сидоров на задачу "Согласование договора"',
+                                time: 'Вчера в 14:20'
+                              },
+                              { 
+                                icon: 'Upload', 
+                                color: 'text-indigo-600',
+                                bg: 'bg-indigo-50',
+                                action: 'Загружен файл', 
+                                detail: 'Договор поставки №2024-156.pdf',
+                                time: '2 дня назад'
+                              }
+                            ].map((activity, index) => (
+                              <div key={index} className="flex items-start space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <div className={`p-3 ${activity.bg} rounded-lg`}>
+                                  <Icon name={activity.icon as any} size={20} className={activity.color} />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-medium">{activity.action}</p>
+                                  <p className="text-sm text-gray-600">{activity.detail}</p>
+                                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Статистика за месяц</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center">
+                              <Icon name="CheckSquare" size={24} className="mx-auto text-blue-600 mb-2" />
+                              <div className="text-2xl font-bold text-blue-900">12</div>
+                              <div className="text-sm text-blue-700">Задач выполнено</div>
+                            </div>
+                            
+                            <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center">
+                              <Icon name="FileText" size={24} className="mx-auto text-green-600 mb-2" />
+                              <div className="text-2xl font-bold text-green-900">8</div>
+                              <div className="text-sm text-green-700">Документов создано</div>
+                            </div>
+                            
+                            <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg text-center">
+                              <Icon name="MessageSquare" size={24} className="mx-auto text-purple-600 mb-2" />
+                              <div className="text-2xl font-bold text-purple-900">34</div>
+                              <div className="text-sm text-purple-700">Комментариев</div>
+                            </div>
+                            
+                            <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg text-center">
+                              <Icon name="Clock" size={24} className="mx-auto text-orange-600 mb-2" />
+                              <div className="text-2xl font-bold text-orange-900">87</div>
+                              <div className="text-sm text-orange-700">Часов работы</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && activeTab !== 'departments' && activeTab !== 'employees' && activeTab !== 'profile' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
