@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Icon from '@/components/ui/icon';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface User {
   id: string;
@@ -1672,7 +1673,275 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && (
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              {mockUser.role === 'manager' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">Аналитика и отчеты</h2>
+                      <p className="text-gray-600">Полная статистика эффективности сотрудников и выполнения задач</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Выполнено задач</CardTitle>
+                        <Icon name="CheckCircle2" className="h-4 w-4 text-green-600" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-green-600">{tasks.filter(t => t.status === 'completed').length}</div>
+                        <p className="text-xs text-muted-foreground">
+                          из {tasks.length} всего задач
+                        </p>
+                        <Progress value={(tasks.filter(t => t.status === 'completed').length / tasks.length) * 100} className="mt-2" />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">В работе</CardTitle>
+                        <Icon name="Clock" className="h-4 w-4 text-blue-600" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">{tasks.filter(t => t.status === 'in_progress').length}</div>
+                        <p className="text-xs text-muted-foreground">
+                          активных задач
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Просрочено</CardTitle>
+                        <Icon name="AlertTriangle" className="h-4 w-4 text-red-600" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-red-600">{tasks.filter(t => t.status === 'overdue').length}</div>
+                        <p className="text-xs text-muted-foreground">
+                          требует внимания
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Эффективность</CardTitle>
+                        <Icon name="TrendingUp" className="h-4 w-4 text-purple-600" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100)}%
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          общий показатель
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Статус задач по отделам</CardTitle>
+                        <CardDescription>Распределение задач по статусам</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={[
+                            { name: 'HR', completed: 2, in_progress: 1, pending: 1, overdue: 0 },
+                            { name: 'ИТ', completed: 1, in_progress: 2, pending: 1, overdue: 1 },
+                            { name: 'Бухгалтерия', completed: 1, in_progress: 0, pending: 1, overdue: 0 },
+                            { name: 'Закупки', completed: 2, in_progress: 1, pending: 0, overdue: 0 },
+                            { name: 'Маркетинг', completed: 1, in_progress: 1, pending: 1, overdue: 0 }
+                          ]}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="completed" fill="#22c55e" name="Выполнено" />
+                            <Bar dataKey="in_progress" fill="#3b82f6" name="В работе" />
+                            <Bar dataKey="pending" fill="#f59e0b" name="Ожидает" />
+                            <Bar dataKey="overdue" fill="#ef4444" name="Просрочено" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Производительность сотрудников</CardTitle>
+                        <CardDescription>Количество выполненных задач за период</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={[
+                            { name: 'Петров А.', tasks: 8, efficiency: 85 },
+                            { name: 'Иванова М.', tasks: 12, efficiency: 92 },
+                            { name: 'Сидоров И.', tasks: 6, efficiency: 75 },
+                            { name: 'Козлов Д.', tasks: 10, efficiency: 88 },
+                            { name: 'Смирнова О.', tasks: 7, efficiency: 80 }
+                          ]} layout="vertical">
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis dataKey="name" type="category" width={100} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="tasks" fill="#8b5cf6" name="Задач выполнено" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Динамика выполнения задач</CardTitle>
+                        <CardDescription>Тренд за последние 7 дней</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={[
+                            { day: 'Пн', completed: 3, created: 5 },
+                            { day: 'Вт', completed: 5, created: 4 },
+                            { day: 'Ср', completed: 4, created: 6 },
+                            { day: 'Чт', completed: 7, created: 3 },
+                            { day: 'Пт', completed: 6, created: 7 },
+                            { day: 'Сб', completed: 2, created: 1 },
+                            { day: 'Вс', completed: 1, created: 2 }
+                          ]}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="day" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} name="Выполнено" />
+                            <Line type="monotone" dataKey="created" stroke="#3b82f6" strokeWidth={2} name="Создано" />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Распределение по приоритетам</CardTitle>
+                        <CardDescription>Текущие активные задачи</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <PieChart>
+                            <Pie
+                              data={[
+                                { name: 'Высокий', value: tasks.filter(t => t.priority === 'high').length, color: '#ef4444' },
+                                { name: 'Средний', value: tasks.filter(t => t.priority === 'medium').length, color: '#f59e0b' },
+                                { name: 'Низкий', value: tasks.filter(t => t.priority === 'low').length, color: '#22c55e' }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                              outerRadius={100}
+                              fill="#8884d8"
+                              dataKey="value"
+                            >
+                              {[
+                                { name: 'Высокий', value: tasks.filter(t => t.priority === 'high').length, color: '#ef4444' },
+                                { name: 'Средний', value: tasks.filter(t => t.priority === 'medium').length, color: '#f59e0b' },
+                                { name: 'Низкий', value: tasks.filter(t => t.priority === 'low').length, color: '#22c55e' }
+                              ].map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <Icon name="Lightbulb" size={24} className="text-yellow-600 mr-2" />
+                        Краткие выводы и рекомендации
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-white rounded-lg border border-green-200">
+                        <div className="flex items-start space-x-3">
+                          <Icon name="TrendingUp" size={20} className="text-green-600 mt-1" />
+                          <div>
+                            <h4 className="font-medium text-green-900">Положительная динамика</h4>
+                            <p className="text-sm text-gray-700 mt-1">
+                              Общая эффективность выполнения задач составляет {Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100)}%. 
+                              Это хороший показатель. Иванова М. показывает лучший результат - 92% эффективности с 12 выполненными задачами.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-lg border border-yellow-200">
+                        <div className="flex items-start space-x-3">
+                          <Icon name="AlertCircle" size={20} className="text-yellow-600 mt-1" />
+                          <div>
+                            <h4 className="font-medium text-yellow-900">Требует внимания</h4>
+                            <p className="text-sm text-gray-700 mt-1">
+                              Обнаружено {tasks.filter(t => t.status === 'overdue').length} просроченных задач, в основном в отделе ИТ. 
+                              Рекомендуется перераспределить нагрузку и пересмотреть сроки выполнения текущих задач.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-lg border border-blue-200">
+                        <div className="flex items-start space-x-3">
+                          <Icon name="Users" size={20} className="text-blue-600 mt-1" />
+                          <div>
+                            <h4 className="font-medium text-blue-900">Распределение нагрузки</h4>
+                            <p className="text-sm text-gray-700 mt-1">
+                              Наибольшая нагрузка приходится на отделы ИТ и Маркетинг ({tasks.filter(t => t.department === 'ИТ').length} и {tasks.filter(t => t.department === 'Маркетинг').length} задач соответственно). 
+                              Сидоров И. имеет самую низкую эффективность (75%) - возможно, требуется дополнительная поддержка или обучение.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-white rounded-lg border border-purple-200">
+                        <div className="flex items-start space-x-3">
+                          <Icon name="Target" size={20} className="text-purple-600 mt-1" />
+                          <div>
+                            <h4 className="font-medium text-purple-900">Рекомендации</h4>
+                            <ul className="text-sm text-gray-700 mt-1 space-y-1 list-disc list-inside">
+                              <li>Провести встречу с отделом ИТ для анализа причин просрочек</li>
+                              <li>Рассмотреть возможность снижения нагрузки на Сидорова И.</li>
+                              <li>Внедрить практику Ивановой М. в работу других сотрудников</li>
+                              <li>Пересмотреть приоритеты задач - {tasks.filter(t => t.priority === 'high').length} задач с высоким приоритетом</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Icon name="Lock" size={64} className="text-gray-400 mb-4" />
+                    <h3 className="text-xl font-medium text-gray-900 mb-2">Доступ ограничен</h3>
+                    <p className="text-gray-600 text-center max-w-md">
+                      Раздел аналитики доступен только для руководителей. 
+                      Обратитесь к администратору системы для получения прав доступа.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
