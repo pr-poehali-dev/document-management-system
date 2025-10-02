@@ -1941,7 +1941,228 @@ function Index() {
             </div>
           )}
 
-          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && (
+          {activeTab === 'departments' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Управление отделами</h2>
+                  <p className="text-gray-600">Структура компании, сотрудники и статистика по отделам</p>
+                </div>
+                {mockUser.role === 'manager' && (
+                  <Button className="bg-primary hover:bg-primary/90">
+                    <Icon name="Plus" size={20} className="mr-2" />
+                    Добавить отдел
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Всего отделов</CardTitle>
+                    <Icon name="Building2" className="h-4 w-4 text-blue-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{departments.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      в организации
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Сотрудников</CardTitle>
+                    <Icon name="Users" className="h-4 w-4 text-green-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">{mockEmployees.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      всего в штате
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Активных задач</CardTitle>
+                    <Icon name="CheckSquare" className="h-4 w-4 text-purple-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-purple-600">{tasks.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      в работе
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Документов</CardTitle>
+                    <Icon name="FileText" className="h-4 w-4 text-orange-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-orange-600">{documents.length}</div>
+                    <p className="text-xs text-muted-foreground">
+                      в системе
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {departments.map((dept) => {
+                  const deptEmployees = mockEmployees.filter(e => e.department === dept);
+                  const deptTasks = tasks.filter(t => t.department === dept);
+                  const deptDocs = documents.filter(d => d.department === dept);
+                  const completedTasks = deptTasks.filter(t => t.status === 'completed').length;
+                  const efficiency = deptTasks.length > 0 ? Math.round((completedTasks / deptTasks.length) * 100) : 0;
+
+                  return (
+                    <Card key={dept} className="hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
+                              <Icon name="Building2" size={24} className="text-blue-600" />
+                            </div>
+                            <div>
+                              <CardTitle>{dept}</CardTitle>
+                              <CardDescription>{deptEmployees.length} сотрудников</CardDescription>
+                            </div>
+                          </div>
+                          {mockUser.role === 'manager' && (
+                            <Button variant="ghost" size="sm">
+                              <Icon name="Settings" size={16} />
+                            </Button>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="text-center p-3 bg-blue-50 rounded-lg">
+                            <div className="text-2xl font-bold text-blue-600">{deptTasks.length}</div>
+                            <div className="text-xs text-gray-600">Задач</div>
+                          </div>
+                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                            <div className="text-2xl font-bold text-green-600">{completedTasks}</div>
+                            <div className="text-xs text-gray-600">Выполнено</div>
+                          </div>
+                          <div className="text-center p-3 bg-purple-50 rounded-lg">
+                            <div className="text-2xl font-bold text-purple-600">{efficiency}%</div>
+                            <div className="text-xs text-gray-600">КПД</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Эффективность</span>
+                            <span className="text-sm text-gray-600">{efficiency}%</span>
+                          </div>
+                          <Progress value={efficiency} className="h-2" />
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium text-gray-700 flex items-center">
+                            <Icon name="Users" size={16} className="mr-2" />
+                            Сотрудники
+                          </h4>
+                          {deptEmployees.length > 0 ? (
+                            <div className="space-y-2">
+                              {deptEmployees.map((emp) => {
+                                const empTasks = tasks.filter(t => t.assignee === emp.name);
+                                const empCompleted = empTasks.filter(t => t.status === 'completed').length;
+                                
+                                return (
+                                  <div key={emp.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div className="flex items-center space-x-3">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarFallback className="text-xs bg-blue-100 text-blue-700">
+                                          {emp.name.split(' ').map(n => n[0]).join('')}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div>
+                                        <p className="text-sm font-medium">{emp.name}</p>
+                                        <p className="text-xs text-gray-500">{emp.role}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-sm font-medium text-gray-900">{empTasks.length} задач</p>
+                                      <p className="text-xs text-green-600">{empCompleted} выполнено</p>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-500 italic">Нет сотрудников</p>
+                          )}
+                        </div>
+
+                        <div className="pt-3 border-t">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center space-x-4">
+                              <span className="text-gray-600">
+                                <Icon name="FileText" size={14} className="inline mr-1" />
+                                {deptDocs.length} документов
+                              </span>
+                              <span className="text-gray-600">
+                                <Icon name="Clock" size={14} className="inline mr-1" />
+                                {deptTasks.filter(t => t.status === 'in_progress').length} в работе
+                              </span>
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-blue-600">
+                              Подробнее
+                              <Icon name="ArrowRight" size={14} className="ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Icon name="BarChart3" size={24} className="text-blue-600 mr-2" />
+                    Общая статистика по отделам
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {departments.map((dept) => {
+                      const deptTasks = tasks.filter(t => t.department === dept);
+                      const completedTasks = deptTasks.filter(t => t.status === 'completed').length;
+                      const efficiency = deptTasks.length > 0 ? Math.round((completedTasks / deptTasks.length) * 100) : 0;
+                      
+                      return (
+                        <div key={dept} className="p-4 bg-white rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-3">
+                              <Icon name="Building2" size={20} className="text-gray-600" />
+                              <span className="font-medium">{dept}</span>
+                              <Badge variant="outline">
+                                {mockEmployees.filter(e => e.department === dept).length} чел.
+                              </Badge>
+                            </div>
+                            <div className="flex items-center space-x-4 text-sm">
+                              <span className="text-gray-600">{completedTasks}/{deptTasks.length} задач</span>
+                              <span className="font-medium text-blue-600">{efficiency}%</span>
+                            </div>
+                          </div>
+                          <Progress value={efficiency} className="h-2" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab !== 'dashboard' && activeTab !== 'tasks' && activeTab !== 'documents' && activeTab !== 'applications' && activeTab !== 'analytics' && activeTab !== 'departments' && (
             <div className="flex items-center justify-center h-96">
               <div className="text-center">
                 <Icon name="Construction" size={64} className="mx-auto text-gray-400 mb-4" />
