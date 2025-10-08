@@ -149,83 +149,51 @@ function Index() {
           </Card>
         </div>
 
-        <div className="bg-white rounded-3xl p-12 shadow-2xl mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Что говорят наши клиенты
+        <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-3xl p-12 shadow-2xl mb-20 text-white">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="inline-block p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
+              <Icon name="Rocket" size={48} className="text-white" />
+            </div>
+            
+            <h3 className="text-5xl font-bold">
+              Готовы увеличить эффективность в 3 раза?
             </h3>
-            <p className="text-lg text-gray-600">
-              Более 500 компаний уже автоматизировали свои процессы с помощью DocFlow
+            
+            <p className="text-xl text-blue-100 leading-relaxed max-w-2xl mx-auto">
+              Присоединяйтесь к сотням компаний, которые уже автоматизировали свою работу с DocFlow
             </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Анна Смирнова',
-                position: 'Директор по развитию',
-                company: 'TechCorp',
-                avatar: '👩‍💼',
-                rating: 5,
-                text: 'DocFlow полностью изменил подход к работе нашей команды. Автоматизация документооборота сэкономила нам более 15 часов в неделю!'
-              },
-              {
-                name: 'Михаил Петров',
-                position: 'CEO',
-                company: 'StartupHub',
-                avatar: '👨‍💻',
-                rating: 5,
-                text: 'Интуитивный интерфейс и мощная аналитика. За 3 месяца использования наша продуктивность выросла на 40%.'
-              },
-              {
-                name: 'Елена Козлова',
-                position: 'HR-директор',
-                company: 'MegaIndustry',
-                avatar: '👩‍🎓',
-                rating: 5,
-                text: 'Лучшая система для управления задачами и контроля сроков. Внедрили за неделю, сотрудники освоили за день.'
-              }
-            ].map((review, index) => (
-              <Card key={index} className="border-2 hover:border-blue-300 transition-all">
-                <CardHeader>
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="text-5xl">{review.avatar}</div>
-                    <div>
-                      <h4 className="font-bold text-gray-900">{review.name}</h4>
-                      <p className="text-sm text-gray-600">{review.position}</p>
-                      <p className="text-sm text-blue-600 font-medium">{review.company}</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-1 mb-3">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Icon key={i} name="Star" size={16} className="text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 leading-relaxed">{review.text}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-12 text-center">
-            <div className="inline-flex items-center space-x-8 bg-gray-50 rounded-2xl px-8 py-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600">500+</div>
-                <div className="text-sm text-gray-600">Компаний</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl font-bold mb-2">3x</div>
+                <div className="text-blue-100">Быстрее обработка</div>
               </div>
-              <div className="h-12 w-px bg-gray-300"></div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">10K+</div>
-                <div className="text-sm text-gray-600">Пользователей</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl font-bold mb-2">70%</div>
+                <div className="text-blue-100">Меньше ошибок</div>
               </div>
-              <div className="h-12 w-px bg-gray-300"></div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">98%</div>
-                <div className="text-sm text-gray-600">Довольны</div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="text-4xl font-bold mb-2">24/7</div>
+                <div className="text-blue-100">Доступность</div>
               </div>
             </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Link to="/register">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-7">
+                  <Icon name="Sparkles" size={20} className="mr-2" />
+                  Начать бесплатно
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 text-lg px-10 py-7">
+                <Icon name="PlayCircle" size={20} className="mr-2" />
+                Смотреть демо
+              </Button>
+            </div>
+
+            <p className="text-sm text-blue-200">
+              14 дней бесплатно • Без кредитной карты • Отмена в любой момент
+            </p>
           </div>
         </div>
 
