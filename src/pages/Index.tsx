@@ -149,78 +149,87 @@ function Index() {
           </Card>
         </div>
 
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-              Как это работает
-            </h3>
-            <p className="text-lg text-gray-600">
-              Начните использовать DocFlow всего за 3 простых шага
-            </p>
-          </div>
+        <div className="bg-white rounded-3xl p-12 shadow-2xl mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <h3 className="text-4xl font-bold text-gray-900">
+                Интеграции с вашими любимыми сервисами
+              </h3>
+              <p className="text-lg text-gray-600">
+                DocFlow легко интегрируется с популярными инструментами, которые вы уже используете
+              </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-1 bg-gradient-to-r from-blue-200 via-purple-200 to-green-200 -z-10"></div>
-            
-            <div className="relative">
-              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-blue-100">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                  1
-                </div>
-                <div className="pt-4 text-center space-y-4">
-                  <div className="inline-block p-4 bg-blue-50 rounded-2xl">
-                    <Icon name="UserPlus" size={40} className="text-blue-600" />
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { name: 'Slack', icon: 'MessageSquare', color: 'bg-purple-50 text-purple-600' },
+                  { name: 'Gmail', icon: 'Mail', color: 'bg-red-50 text-red-600' },
+                  { name: 'Telegram', icon: 'Send', color: 'bg-blue-50 text-blue-600' },
+                  { name: 'Google Drive', icon: 'HardDrive', color: 'bg-yellow-50 text-yellow-600' },
+                  { name: 'Zoom', icon: 'Video', color: 'bg-indigo-50 text-indigo-600' },
+                  { name: 'Calendar', icon: 'Calendar', color: 'bg-green-50 text-green-600' }
+                ].map((service, index) => (
+                  <div key={index} className={`${service.color} p-6 rounded-xl hover:scale-105 transition-transform cursor-pointer`}>
+                    <Icon name={service.icon as any} size={32} className="mb-3" />
+                    <div className="font-semibold">{service.name}</div>
                   </div>
-                  <h4 className="text-2xl font-bold text-gray-900">Регистрация</h4>
-                  <p className="text-gray-600">
-                    Создайте аккаунт за 30 секунд. Никаких сложных настроек и установок программ
-                  </p>
-                </div>
+                ))}
+              </div>
+
+              <div className="flex items-center space-x-3 text-sm text-gray-600 bg-blue-50 p-4 rounded-xl">
+                <Icon name="Info" size={20} className="text-blue-600" />
+                <span>И ещё более 50 интеграций через API</span>
               </div>
             </div>
 
-            <div className="relative">
-              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-purple-100">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                  2
-                </div>
-                <div className="pt-4 text-center space-y-4">
-                  <div className="inline-block p-4 bg-purple-50 rounded-2xl">
-                    <Icon name="Settings" size={40} className="text-purple-600" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-gray-900">Настройка</h4>
+            <div className="space-y-6">
+              <Card className="border-2 border-blue-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Icon name="Zap" size={24} className="text-blue-600" />
+                    </div>
+                    <span>Автоматизация</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <p className="text-gray-600">
-                    Добавьте команду, настройте процессы под вашу компанию за несколько кликов
+                    Создавайте автоматические сценарии между сервисами без программирования
                   </p>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
 
-            <div className="relative">
-              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-green-100">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                  3
-                </div>
-                <div className="pt-4 text-center space-y-4">
-                  <div className="inline-block p-4 bg-green-50 rounded-2xl">
-                    <Icon name="TrendingUp" size={40} className="text-green-600" />
-                  </div>
-                  <h4 className="text-2xl font-bold text-gray-900">Результаты</h4>
+              <Card className="border-2 border-purple-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <Icon name="Workflow" size={24} className="text-purple-600" />
+                    </div>
+                    <span>Единое пространство</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <p className="text-gray-600">
-                    Наблюдайте за ростом эффективности и автоматизацией процессов в реальном времени
+                    Работайте со всеми инструментами из одного интерфейса
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
+                </CardContent>
+              </Card>
 
-          <div className="text-center mt-12">
-            <Link to="/register">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6">
-                <Icon name="Rocket" size={20} className="mr-2" />
-                Попробовать сейчас
-              </Button>
-            </Link>
+              <Card className="border-2 border-green-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Icon name="RefreshCw" size={24} className="text-green-600" />
+                    </div>
+                    <span>Синхронизация</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">
+                    Данные автоматически синхронизируются между всеми приложениями
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 
