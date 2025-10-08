@@ -149,51 +149,78 @@ function Index() {
           </Card>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-3xl p-12 shadow-2xl mb-20 text-white">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-block p-4 bg-white/10 rounded-2xl backdrop-blur-sm">
-              <Icon name="Rocket" size={48} className="text-white" />
-            </div>
-            
-            <h3 className="text-5xl font-bold">
-              Готовы увеличить эффективность в 3 раза?
+        <div className="mb-20">
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Как это работает
             </h3>
+            <p className="text-lg text-gray-600">
+              Начните использовать DocFlow всего за 3 простых шага
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="hidden md:block absolute top-1/3 left-1/4 right-1/4 h-1 bg-gradient-to-r from-blue-200 via-purple-200 to-green-200 -z-10"></div>
             
-            <p className="text-xl text-blue-100 leading-relaxed max-w-2xl mx-auto">
-              Присоединяйтесь к сотням компаний, которые уже автоматизировали свою работу с DocFlow
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="text-4xl font-bold mb-2">3x</div>
-                <div className="text-blue-100">Быстрее обработка</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="text-4xl font-bold mb-2">70%</div>
-                <div className="text-blue-100">Меньше ошибок</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <div className="text-4xl font-bold mb-2">24/7</div>
-                <div className="text-blue-100">Доступность</div>
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-blue-100">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  1
+                </div>
+                <div className="pt-4 text-center space-y-4">
+                  <div className="inline-block p-4 bg-blue-50 rounded-2xl">
+                    <Icon name="UserPlus" size={40} className="text-blue-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900">Регистрация</h4>
+                  <p className="text-gray-600">
+                    Создайте аккаунт за 30 секунд. Никаких сложных настроек и установок программ
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Link to="/register">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-7">
-                  <Icon name="Sparkles" size={20} className="mr-2" />
-                  Начать бесплатно
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 text-lg px-10 py-7">
-                <Icon name="PlayCircle" size={20} className="mr-2" />
-                Смотреть демо
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-purple-100">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  2
+                </div>
+                <div className="pt-4 text-center space-y-4">
+                  <div className="inline-block p-4 bg-purple-50 rounded-2xl">
+                    <Icon name="Settings" size={40} className="text-purple-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900">Настройка</h4>
+                  <p className="text-gray-600">
+                    Добавьте команду, настройте процессы под вашу компанию за несколько кликов
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-green-100">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  3
+                </div>
+                <div className="pt-4 text-center space-y-4">
+                  <div className="inline-block p-4 bg-green-50 rounded-2xl">
+                    <Icon name="TrendingUp" size={40} className="text-green-600" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-gray-900">Результаты</h4>
+                  <p className="text-gray-600">
+                    Наблюдайте за ростом эффективности и автоматизацией процессов в реальном времени
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/register">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-6">
+                <Icon name="Rocket" size={20} className="mr-2" />
+                Попробовать сейчас
               </Button>
-            </div>
-
-            <p className="text-sm text-blue-200">
-              14 дней бесплатно • Без кредитной карты • Отмена в любой момент
-            </p>
+            </Link>
           </div>
         </div>
 
