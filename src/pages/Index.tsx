@@ -150,86 +150,60 @@ function Index() {
         </div>
 
         <div className="bg-white rounded-3xl p-12 shadow-2xl mb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <h3 className="text-4xl font-bold text-gray-900">
-                Интеграции с вашими любимыми сервисами
-              </h3>
-              <p className="text-lg text-gray-600">
-                DocFlow легко интегрируется с популярными инструментами, которые вы уже используете
-              </p>
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Часто задаваемые вопросы
+            </h3>
+            <p className="text-lg text-gray-600">
+              Ответы на популярные вопросы о DocFlow
+            </p>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { name: 'Slack', icon: 'MessageSquare', color: 'bg-purple-50 text-purple-600' },
-                  { name: 'Gmail', icon: 'Mail', color: 'bg-red-50 text-red-600' },
-                  { name: 'Telegram', icon: 'Send', color: 'bg-blue-50 text-blue-600' },
-                  { name: 'Google Drive', icon: 'HardDrive', color: 'bg-yellow-50 text-yellow-600' },
-                  { name: 'Zoom', icon: 'Video', color: 'bg-indigo-50 text-indigo-600' },
-                  { name: 'Calendar', icon: 'Calendar', color: 'bg-green-50 text-green-600' }
-                ].map((service, index) => (
-                  <div key={index} className={`${service.color} p-6 rounded-xl hover:scale-105 transition-transform cursor-pointer`}>
-                    <Icon name={service.icon as any} size={32} className="mb-3" />
-                    <div className="font-semibold">{service.name}</div>
-                  </div>
-                ))}
-              </div>
+          <div className="max-w-3xl mx-auto space-y-4">
+            {[
+              {
+                q: 'Сколько стоит использование DocFlow?',
+                a: 'Первые 14 дней бесплатно. После пробного периода стоимость начинается от 990₽ в месяц за команду до 10 человек.'
+              },
+              {
+                q: 'Нужно ли устанавливать программы?',
+                a: 'Нет, DocFlow работает полностью в браузере. Просто зарегистрируйтесь и начните работу.'
+              },
+              {
+                q: 'Безопасны ли мои данные?',
+                a: 'Да, мы используем шифрование данных, регулярные бэкапы и соответствуем стандартам безопасности. Ваши данные хранятся на защищённых серверах.'
+              },
+              {
+                q: 'Можно ли интегрировать с другими системами?',
+                a: 'Да, DocFlow поддерживает интеграцию с популярными сервисами через API и готовые коннекторы.'
+              },
+              {
+                q: 'Как долго занимает внедрение?',
+                a: 'Базовая настройка занимает 15-30 минут. Полное внедрение с настройкой всех процессов — 1-3 дня.'
+              },
+              {
+                q: 'Есть ли техподдержка?',
+                a: 'Да, мы предоставляем техническую поддержку по email и в чате. На тарифе Premium доступна приоритетная поддержка 24/7.'
+              }
+            ].map((faq, index) => (
+              <details key={index} className="group bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-all cursor-pointer">
+                <summary className="flex items-center justify-between font-semibold text-gray-900 text-lg list-none">
+                  <span>{faq.q}</span>
+                  <Icon name="ChevronDown" size={24} className="text-blue-600 group-open:rotate-180 transition-transform" />
+                </summary>
+                <p className="mt-4 text-gray-600 leading-relaxed">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
+          </div>
 
-              <div className="flex items-center space-x-3 text-sm text-gray-600 bg-blue-50 p-4 rounded-xl">
-                <Icon name="Info" size={20} className="text-blue-600" />
-                <span>И ещё более 50 интеграций через API</span>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <Card className="border-2 border-blue-100">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Icon name="Zap" size={24} className="text-blue-600" />
-                    </div>
-                    <span>Автоматизация</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Создавайте автоматические сценарии между сервисами без программирования
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-purple-100">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-3">
-                    <div className="p-2 bg-purple-100 rounded-lg">
-                      <Icon name="Workflow" size={24} className="text-purple-600" />
-                    </div>
-                    <span>Единое пространство</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Работайте со всеми инструментами из одного интерфейса
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="border-2 border-green-100">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <Icon name="RefreshCw" size={24} className="text-green-600" />
-                    </div>
-                    <span>Синхронизация</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Данные автоматически синхронизируются между всеми приложениями
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+          <div className="mt-12 text-center">
+            <p className="text-gray-600 mb-4">Не нашли ответ на свой вопрос?</p>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              <Icon name="MessageCircle" size={20} className="mr-2" />
+              Связаться с поддержкой
+            </Button>
           </div>
         </div>
 
