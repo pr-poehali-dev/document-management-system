@@ -150,92 +150,80 @@ function Index() {
         </div>
 
         <div className="bg-white rounded-3xl p-12 shadow-2xl mb-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h3 className="text-4xl font-bold text-gray-900">
-                Почему стоит выбрать DocFlow?
-              </h3>
-              <p className="text-lg text-gray-600">
-                Современное решение для автоматизации корпоративных процессов, созданное с учётом лучших практик
-              </p>
-              
-              <div className="space-y-4">
-                {[
-                  { icon: 'Zap', title: 'Быстрый старт', desc: 'Интуитивный интерфейс, не требующий обучения' },
-                  { icon: 'Shield', title: 'Надёжная безопасность', desc: 'Современные стандарты защиты данных' },
-                  { icon: 'Smartphone', title: 'Работа везде', desc: 'Адаптивный дизайн для любых устройств' },
-                  { icon: 'Settings', title: 'Гибкая настройка', desc: 'Подстраивается под ваши процессы' }
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Icon name={feature.icon as any} size={24} className="text-blue-600" />
-                    </div>
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4">
+              Что говорят наши клиенты
+            </h3>
+            <p className="text-lg text-gray-600">
+              Более 500 компаний уже автоматизировали свои процессы с помощью DocFlow
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: 'Анна Смирнова',
+                position: 'Директор по развитию',
+                company: 'TechCorp',
+                avatar: '👩‍💼',
+                rating: 5,
+                text: 'DocFlow полностью изменил подход к работе нашей команды. Автоматизация документооборота сэкономила нам более 15 часов в неделю!'
+              },
+              {
+                name: 'Михаил Петров',
+                position: 'CEO',
+                company: 'StartupHub',
+                avatar: '👨‍💻',
+                rating: 5,
+                text: 'Интуитивный интерфейс и мощная аналитика. За 3 месяца использования наша продуктивность выросла на 40%.'
+              },
+              {
+                name: 'Елена Козлова',
+                position: 'HR-директор',
+                company: 'MegaIndustry',
+                avatar: '👩‍🎓',
+                rating: 5,
+                text: 'Лучшая система для управления задачами и контроля сроков. Внедрили за неделю, сотрудники освоили за день.'
+              }
+            ].map((review, index) => (
+              <Card key={index} className="border-2 hover:border-blue-300 transition-all">
+                <CardHeader>
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="text-5xl">{review.avatar}</div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">{feature.title}</h4>
-                      <p className="text-sm text-gray-600">{feature.desc}</p>
+                      <h4 className="font-bold text-gray-900">{review.name}</h4>
+                      <p className="text-sm text-gray-600">{review.position}</p>
+                      <p className="text-sm text-blue-600 font-medium">{review.company}</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="flex space-x-1 mb-3">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Icon key={i} name="Star" size={16} className="text-yellow-400 fill-yellow-400" />
+                    ))}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-            <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
-                <h4 className="text-3xl font-bold mb-4">Начните прямо сейчас</h4>
-                <p className="text-blue-100 mb-6 text-lg">
-                  Протестируйте все возможности системы абсолютно бесплатно
-                </p>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center space-x-2">
-                    <Icon name="Check" size={20} />
-                    <span>Бесплатный пробный период 14 дней</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Icon name="Check" size={20} />
-                    <span>Не требуется кредитная карта</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Icon name="Check" size={20} />
-                    <span>Полный доступ ко всем функциям</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Icon name="Check" size={20} />
-                    <span>Техническая поддержка</span>
-                  </li>
-                </ul>
-                <Link to="/register">
-                  <Button size="lg" className="w-full bg-white text-blue-600 hover:bg-gray-100 text-lg py-6">
-                    <Icon name="ArrowRight" size={20} className="mr-2" />
-                    Попробовать бесплатно
-                  </Button>
-                </Link>
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center space-x-8 bg-gray-50 rounded-2xl px-8 py-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600">500+</div>
+                <div className="text-sm text-gray-600">Компаний</div>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-6 rounded-xl text-center">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">
-                    <Icon name="Rocket" size={40} className="mx-auto text-blue-600" />
-                  </div>
-                  <div className="text-sm text-gray-600 mt-2">Быстрое развёртывание</div>
-                </div>
-                <div className="bg-purple-50 p-6 rounded-xl text-center">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">
-                    <Icon name="Code2" size={40} className="mx-auto text-purple-600" />
-                  </div>
-                  <div className="text-sm text-gray-600 mt-2">Современный стек</div>
-                </div>
-                <div className="bg-green-50 p-6 rounded-xl text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    <Icon name="Sparkles" size={40} className="mx-auto text-green-600" />
-                  </div>
-                  <div className="text-sm text-gray-600 mt-2">Умная автоматизация</div>
-                </div>
-                <div className="bg-yellow-50 p-6 rounded-xl text-center">
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">
-                    <Icon name="Lock" size={40} className="mx-auto text-yellow-600" />
-                  </div>
-                  <div className="text-sm text-gray-600 mt-2">Защита данных</div>
-                </div>
+              <div className="h-12 w-px bg-gray-300"></div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600">10K+</div>
+                <div className="text-sm text-gray-600">Пользователей</div>
+              </div>
+              <div className="h-12 w-px bg-gray-300"></div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600">98%</div>
+                <div className="text-sm text-gray-600">Довольны</div>
               </div>
             </div>
           </div>
